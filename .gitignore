@@ -1,0 +1,27 @@
+# Ignore all files in data/ folder except review_data.csv
+data/*
+!data/raw/
+!data/raw/review_data.csv
+
+# Ignore virtual environments
+venv/
+env/
+.venv/
+
+# Ignore Python cache and logs
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Ignore VSCode and system files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Ignore Streamlit config and temp
+.streamlit/secrets.toml
+.streamlit/config.toml
+"Git/" 
+"Git/" 
+"Git/" 
