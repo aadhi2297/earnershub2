@@ -2508,6 +2508,9 @@ Date,Review,Sentiment,Source
 2025-06-25,well ,Positive,EarnersHub
 2025-06-25,good app ,Positive,EarnersHub
 2025-06-26,good,Positive,EarnersHub
-2025-06-26,bad,Positive,EarnersHub
-2025-06-26,not good,Positive,EarnersHub
+2025-06-26,bad,Negative,EarnersHub
+2025-06-26,not good,Negative,EarnersHub
 2025-06-26,does not work well,Negative,EarnersHub
+2025-06-26,worst,Negative,EarnersHub
+2025-06-26,bad,Negative,EarnersHub
+2025-06-26,sorry,Negative,EarnersHub
