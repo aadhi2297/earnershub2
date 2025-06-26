@@ -1,4 +1,6 @@
-Date,Name,Type,Link,Submitted_By,Trust_Score
+Date,Name,Type,Link,Submitted_By,Trust_Score,Image
 2024-06-01,EarnFast App,App,https://earnfast.app,Adi Shankar,70
 2024-06-02,MoneyBoost Channel,YouTube,https://youtube.com/moneyboost,Ganesh Kumar,40
 2025-06-25,earning money,YouTube,https://learn.thecodenow.in/home/dashboard,aadhi,70
+
+2025-06-26,algorithm,YouTube,https://www.youtube.com/results?search_query=Explain+Lamport%E2%80%99s+Bakery+Algorithm+for+shared+memory+mutual+exclusion,aadhi,100,
