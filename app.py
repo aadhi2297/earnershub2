@@ -230,5 +230,5 @@ if menu == "About":
     - 🚨 Community moderation with reporting and auto-removal.
 
     ---
-    👨‍💻 Developed with ❤️ by **Gubbala Adi Shankar**
+    👨‍💻 Developed with ❤️ by **G.Adi Shankar**
     """)
