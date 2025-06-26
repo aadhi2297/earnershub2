@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import os
+import random
 from datetime import datetime
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -143,12 +144,13 @@ if menu == "Earning Resources":
         sources_df.to_csv(EARNING_FILE, index=False)
         reported_df = reported_df[reported_df['Reports'] < 5]
         reported_df.to_csv(REPORTED_FILE, index=False)
+
 if menu == "Work Marketplace":
     st.markdown("<h2 style='text-align:center;'>🛠️ Work Marketplace</h2>", unsafe_allow_html=True)
 
     if not os.path.exists(WORK_FILE):
         pd.DataFrame(columns=['Date', 'Work_Description', 'Location', 'Posted_By', 'Phone',
-                              'Amount', 'Accepted_By', 'UPI_QR', 'Status']).to_csv(WORK_FILE, index=False)
+                              'Amount', 'Accepted_By', 'UPI_QR', 'Status', 'OTP']).to_csv(WORK_FILE, index=False)
 
     with st.form("post_work"):
         date = datetime.now().strftime('%Y-%m-%d')
@@ -159,11 +161,14 @@ if menu == "Work Marketplace":
         amount = st.text_input("Amount")
         submit_work = st.form_submit_button("Post Work")
         if submit_work and all([desc, loc, poster, phone, amount]):
-            new_work = pd.DataFrame([[date, desc, loc, poster, phone, amount, "", "", "Open"]],
+            otp = random.randint(1000, 9999)
+            new_work = pd.DataFrame([[date, desc, loc, poster, phone, amount, "", "", "Open", otp]],
                                     columns=['Date', 'Work_Description', 'Location', 'Posted_By', 'Phone',
-                                             'Amount', 'Accepted_By', 'UPI_QR', 'Status'])
+                                             'Amount', 'Accepted_By', 'UPI_QR', 'Status', 'OTP'])
             new_work.to_csv(WORK_FILE, mode='a', header=False, index=False)
-            st.success("✅ Work posted!")
+            st.success("✅ Work posted successfully.")
+            # Simulate SMS send
+            st.info(f"📱 OTP sent to {phone}. (Simulated here: {otp})")  # REMOVE this line when SMS integrated
 
     jobs_df = pd.read_csv(WORK_FILE)
 
@@ -172,13 +177,13 @@ if menu == "Work Marketplace":
         jobs_df = jobs_df[jobs_df['Location'].str.contains(filter_loc, case=False, na=False)]
 
     st.subheader("📋 Open Works")
-    st.dataframe(jobs_df[jobs_df['Status'] == 'Open'])
+    st.dataframe(jobs_df[jobs_df['Status'] == 'Open'][['Date','Work_Description','Location','Posted_By','Amount','Status']])
 
     with st.form("accept_work"):
         accept_job = st.text_input("Work Description to Accept")
         accepter_name = st.text_input("Your Name (Accepter)")
         upi_qr = st.file_uploader("Upload UPI QR (optional)")
-        submit_accept = st.form_submit_button("Accept Job")
+        submit_accept = st.form_submit_button("Accept Work")
 
         if submit_accept and accept_job and accepter_name:
             idx = jobs_df[(jobs_df['Work_Description'] == accept_job) & (jobs_df['Status'] == 'Open')].index
@@ -191,22 +196,47 @@ if menu == "Work Marketplace":
                 jobs_df.loc[idx, ['Accepted_By', 'UPI_QR', 'Status']] = [accepter_name, upi_path, 'Accepted']
                 jobs_df.to_csv(WORK_FILE, index=False)
                 st.success("✅ Work Accepted!")
+                poster_phone = jobs_df.loc[idx[0], 'Phone']
+                otp_value = jobs_df.loc[idx[0], 'OTP']
+                # Simulate SMS send to poster
+                st.info(f"📱 OTP sent to {poster_phone}. (Simulated here: {otp_value})")  # REMOVE in production
             else:
                 st.error("❌ Work either does not exist or already accepted.")
 
-    with st.form("complete_work"):
-        comp_job = st.text_input("Work Description to Mark Completed")
-        poster_name = st.text_input("Your Name (Work Poster)")
-        complete_btn = st.form_submit_button("Mark Completed")
+    with st.form("delete_work"):
+        del_job = st.text_input("Work Description to Delete (before acceptance)")
+        del_poster = st.text_input("Your Name (Poster)")
+        del_submit = st.form_submit_button("Delete Work")
 
-        if complete_btn and comp_job and poster_name:
-            idx = jobs_df[(jobs_df['Work_Description'] == comp_job) &
-                          (jobs_df['Posted_By'] == poster_name) &
-                          (jobs_df['Status'] == 'Accepted')].index
+        if del_submit and del_job and del_poster:
+            idx = jobs_df[(jobs_df['Work_Description'] == del_job) &
+                          (jobs_df['Posted_By'] == del_poster) &
+                          (jobs_df['Status'] == 'Open')].index
             if not idx.empty:
                 jobs_df.drop(idx, inplace=True)
                 jobs_df.to_csv(WORK_FILE, index=False)
-                st.success("✅ Work marked as completed and removed!")
+                st.success("✅ Work deleted successfully!")
+            else:
+                st.error("❌ No such open work found for you or it's already accepted.")
+
+    with st.form("complete_work"):
+        comp_job = st.text_input("Work Description to Mark Completed")
+        accepter_name = st.text_input("Your Name (Accepter)")
+        entered_otp = st.text_input("Enter 4-digit OTP", type="password")
+        complete_btn = st.form_submit_button("Mark Completed")
+
+        if complete_btn and comp_job and accepter_name and entered_otp:
+            idx = jobs_df[(jobs_df['Work_Description'] == comp_job) &
+                          (jobs_df['Accepted_By'] == accepter_name) &
+                          (jobs_df['Status'] == 'Accepted')].index
+            if not idx.empty:
+                correct_otp = str(jobs_df.loc[idx[0], 'OTP'])
+                if entered_otp == correct_otp:
+                    jobs_df.drop(idx, inplace=True)
+                    jobs_df.to_csv(WORK_FILE, index=False)
+                    st.success("✅ Work marked as completed and removed!")
+                else:
+                    st.error("❌ Incorrect OTP.")
             else:
                 st.error("❌ No such accepted Work found for you.")
 if menu == "Removed Resources":
