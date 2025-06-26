@@ -157,25 +157,25 @@ if menu == "Work Marketplace":
         poster = st.text_input("Your Name")
         phone = st.text_input("Phone Number")
         amount = st.text_input("Amount")
-        submit_work = st.form_submit_button("Post Job")
+        submit_work = st.form_submit_button("Post Work")
         if submit_work and all([desc, loc, poster, phone, amount]):
             new_work = pd.DataFrame([[date, desc, loc, poster, phone, amount, "", "", "Open"]],
                                     columns=['Date', 'Work_Description', 'Location', 'Posted_By', 'Phone',
                                              'Amount', 'Accepted_By', 'UPI_QR', 'Status'])
             new_work.to_csv(WORK_FILE, mode='a', header=False, index=False)
-            st.success("✅ Job posted!")
+            st.success("✅ Work posted!")
 
     jobs_df = pd.read_csv(WORK_FILE)
 
-    filter_loc = st.text_input("🔍 Filter jobs by Location")
+    filter_loc = st.text_input("🔍 Filter works by Location")
     if filter_loc:
         jobs_df = jobs_df[jobs_df['Location'].str.contains(filter_loc, case=False, na=False)]
 
-    st.subheader("📋 Open Jobs")
+    st.subheader("📋 Open Works")
     st.dataframe(jobs_df[jobs_df['Status'] == 'Open'])
 
     with st.form("accept_work"):
-        accept_job = st.text_input("Job Description to Accept")
+        accept_job = st.text_input("Work Description to Accept")
         accepter_name = st.text_input("Your Name (Accepter)")
         upi_qr = st.file_uploader("Upload UPI QR (optional)")
         submit_accept = st.form_submit_button("Accept Job")
@@ -190,13 +190,13 @@ if menu == "Work Marketplace":
                         f.write(upi_qr.read())
                 jobs_df.loc[idx, ['Accepted_By', 'UPI_QR', 'Status']] = [accepter_name, upi_path, 'Accepted']
                 jobs_df.to_csv(WORK_FILE, index=False)
-                st.success("✅ Job Accepted!")
+                st.success("✅ Work Accepted!")
             else:
-                st.error("❌ Job either does not exist or already accepted.")
+                st.error("❌ Work either does not exist or already accepted.")
 
     with st.form("complete_work"):
-        comp_job = st.text_input("Job Description to Mark Completed")
-        poster_name = st.text_input("Your Name (Job Poster)")
+        comp_job = st.text_input("Work Description to Mark Completed")
+        poster_name = st.text_input("Your Name (Work Poster)")
         complete_btn = st.form_submit_button("Mark Completed")
 
         if complete_btn and comp_job and poster_name:
@@ -206,9 +206,9 @@ if menu == "Work Marketplace":
             if not idx.empty:
                 jobs_df.drop(idx, inplace=True)
                 jobs_df.to_csv(WORK_FILE, index=False)
-                st.success("✅ Job marked as completed and removed!")
+                st.success("✅ Work marked as completed and removed!")
             else:
-                st.error("❌ No such accepted job found for you.")
+                st.error("❌ No such accepted Work found for you.")
 if menu == "Removed Resources":
     st.markdown("<h2 style='text-align:center;'>🚫 Removed Resources</h2>", unsafe_allow_html=True)
     if os.path.exists(REMOVED_FILE):
