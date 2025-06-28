@@ -62,6 +62,7 @@ with st.sidebar:
     menu = st.radio("Navigate", ["App Reviews", "Earning Resources", "Removed Resources", "Work Marketplace", "About"])
 
 # App Reviews Section
+# App Reviews Section
 if menu == "App Reviews":
     load_logo()
     st.markdown("<h2 style='text-align:center;'>📝 App Reviews</h2>", unsafe_allow_html=True)
@@ -83,18 +84,24 @@ if menu == "App Reviews":
 
     df = pd.read_csv(REVIEW_FILE)
     if not df.empty:
-        sentiment_counts = df['Sentiment'].value_counts()
-        fig, ax = plt.subplots(figsize=(2.5, 2.5))
-        wedges, texts, autotexts = ax.pie(
-            sentiment_counts,
-            labels=[f"{label} ({count})" for label, count in sentiment_counts.items()],
-            autopct='%1.1f%%',
-            textprops={'fontsize': 8}
+        st.subheader("📋 Recent 25 Reviews")
+        recent_reviews = df.sort_values(by='Date', ascending=False).head(25).reset_index(drop=True)
+
+        # Add emoji to Sentiment values
+        recent_reviews['Sentiment'] = recent_reviews['Sentiment'].apply(
+            lambda x: f"😊 Positive" if x == 'Positive' else "😞 Negative"
         )
-        ax.axis('equal')
-        col_center = st.columns([2, 1, 2])[1]
-        with col_center:
-            st.pyplot(fig)
+
+        # Styling function for Sentiment column
+        def sentiment_color(val):
+            color = 'green' if 'Positive' in val else 'red'
+            return f'color: {color}; font-weight: bold'
+
+        styled_df = recent_reviews[['Date', 'Review', 'Sentiment']].style.applymap(
+            sentiment_color, subset=['Sentiment']
+        )
+
+        st.dataframe(styled_df, use_container_width=True)
         st.caption(f"📊 Total Reviews: {len(df)}")
     else:
         st.info("No reviews yet.")
